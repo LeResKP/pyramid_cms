@@ -3,12 +3,12 @@ from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError
 
-from .models import (
+from ..models import (
     DBSession,
     Page,
     )
 
-@view_config(route_name='home', renderer='templates/mytemplate.pt')
+@view_config(route_name='home', renderer='pyramid_cms:templates/mytemplate.pt')
 def my_view(request):
     try:
         page = DBSession.query(Page).filter(Page.url=='/').first()
@@ -32,3 +32,5 @@ After you fix the problem, please restart the Pyramid application to
 try it again.
 """
 
+def includeme(config):
+    config.add_route('home', '/')

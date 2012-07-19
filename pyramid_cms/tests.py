@@ -25,7 +25,7 @@ class TestMyView(unittest.TestCase):
         testing.tearDown()
 
     def test_it(self):
-        from .views import my_view
+        from .views.view import my_view
         request = testing.DummyRequest()
         info = my_view(request)
         page = info['page']
