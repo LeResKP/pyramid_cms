@@ -9,7 +9,7 @@ def includeme(config):
             'index',
             '/{url:.*}', 
             view=index, 
-            renderer='pyramid_cms:templates/mytemplate.pt',
+            renderer='index.mak',
             custom_predicates=(route.exist_page,),
             factory=route.factory,
             )
