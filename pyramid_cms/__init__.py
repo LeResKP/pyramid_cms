@@ -5,7 +5,8 @@ from .models import DBSession
 
 # Add the modules you want to be include in the config
 views_modules = [
-    'pyramid_cms.views.view'
+    'pyramid_cms.views.view',
+    'pyramid_cms.views.admin',
 ]
 
 def main(global_config, **settings):

@@ -16,9 +16,12 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
+import tw2.sqla as tws
+
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
-
+# We need this for tws
+Base.query = DBSession.query_property()
 
 class Page(Base):
     __tablename__ = 'page'
@@ -42,5 +45,19 @@ class Page(Base):
 
     __mapper_args__ = ({'polymorphic_on': page_type, 'polymorphic_identity': 'page'})
 
+    _pk_name = 'idpage'
+
     def __unicode__(self):
         return self.name
+
+    @property
+    def id(self):
+        # Need for tws
+        return self.idpage
+
+    @classmethod
+    def getAdminForm(cls):
+        return type('%sAutoTableForm' % cls.__name__, 
+                    (tws.AutoTableForm,),
+                    {'entity': cls})
+
