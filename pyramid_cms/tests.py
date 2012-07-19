@@ -12,12 +12,12 @@ class TestMyView(unittest.TestCase):
         engine = create_engine('sqlite://')
         from .models import (
             Base,
-            MyModel,
+            Page,
             )
         DBSession.configure(bind=engine)
         Base.metadata.create_all(engine)
         with transaction.manager:
-            model = MyModel(name='one', value=55)
+            model = Page(name='root', url='/', content='Root page content')
             DBSession.add(model)
 
     def tearDown(self):
@@ -28,5 +28,7 @@ class TestMyView(unittest.TestCase):
         from .views import my_view
         request = testing.DummyRequest()
         info = my_view(request)
-        self.assertEqual(info['one'].name, 'one')
+        page = info['page']
+        self.assertEqual(page.name, 'root')
+        self.assertEqual(page.content, 'Root page content')
         self.assertEqual(info['project'], 'pyramid_cms')
