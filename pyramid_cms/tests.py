@@ -3,17 +3,17 @@ import transaction
 
 from pyramid import testing
 
-from .models import DBSession
+from .models import (
+    DBSession,
+    Base,
+    Page,
+    )
 
 class TestMyView(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
         from sqlalchemy import create_engine
         engine = create_engine('sqlite://')
-        from .models import (
-            Base,
-            Page,
-            )
         DBSession.configure(bind=engine)
         Base.metadata.create_all(engine)
         with transaction.manager:
@@ -25,9 +25,10 @@ class TestMyView(unittest.TestCase):
         testing.tearDown()
 
     def test_it(self):
-        from .views.view import my_view
+        from .views.view import index
         request = testing.DummyRequest()
-        info = my_view(request)
+        page = DBSession.query(Page).first()
+        info = index(page, request)
         page = info['page']
         self.assertEqual(page.name, 'root')
         self.assertEqual(page.content, 'Root page content')
