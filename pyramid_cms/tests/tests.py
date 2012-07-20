@@ -3,12 +3,12 @@ import transaction
 
 from pyramid import testing
 
-from .models import (
+from ..models import (
     DBSession,
     Base,
     Page,
     )
-from .views.admin import edit, add
+from ..views.admin import edit, add
 
 class TestMyView(unittest.TestCase):
     def setUp(self):
@@ -29,7 +29,7 @@ class TestMyView(unittest.TestCase):
         testing.tearDown()
 
     def test_view(self):
-        from .views.view import index
+        from ..views.view import index
         request = testing.DummyRequest()
         page = DBSession.query(Page).first()
         response = index(page, request)
