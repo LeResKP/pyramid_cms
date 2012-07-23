@@ -50,6 +50,7 @@ def includeme(config):
             renderer='admin.mak',
             custom_predicates=(route.exist_page,),
             factory=route.factory,
+            permission='edit',
             )
     config.add_route(
             'new',
@@ -58,4 +59,5 @@ def includeme(config):
             renderer='admin.mak',
             custom_predicates=(route.exist_page,),
             factory=route.factory,
+            permission='add',
             )

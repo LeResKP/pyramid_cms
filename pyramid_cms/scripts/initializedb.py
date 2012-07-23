@@ -13,6 +13,8 @@ from ..models import (
     DBSession,
     Page,
     Base,
+    User,
+    Role,
     )
 
 def usage(argv):
@@ -33,3 +35,8 @@ def main(argv=sys.argv):
     with transaction.manager:
         root_page = Page(name='root', url='/', content='Root page content')
         DBSession.add(root_page)
+        admin_role = Role(name='admin')
+        admin_user = User(email='admin@lereskp.fr', password='admin')
+        admin_user.roles = [admin_role]
+        DBSession.add(admin_user)
+        

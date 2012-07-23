@@ -1,5 +1,6 @@
 from .models import DBSession, Page
 import logging
+from . import security
 
 log = logging.getLogger(__name__)
 
@@ -31,5 +32,6 @@ def factory(request):
     pageobj = request.matchdict.get('pageobj')
     if pageobj:
         log.debug('factory: Page object defined in the matchdic')
+        security.set_object_permissions(pageobj)
         return pageobj
 

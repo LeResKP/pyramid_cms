@@ -7,6 +7,8 @@ from ..models import (
     DBSession,
     Base,
     Page,
+    User,
+    Role,
     )
 from ..views.admin import edit, add
 
@@ -122,3 +124,56 @@ class TestMyView(unittest.TestCase):
         self.assertEqual(widget.entity, page.__class__)
         self.assertEqual(widget.value, None)
         self.assertEqual(widget._validated, True)
+
+
+class FunctionalTests(unittest.TestCase):
+
+    viewer_view = '/'
+    viewer_edit = '/edit'
+    viewer_login = '/login'
+
+    def setUp(self):
+        from pyramid_cms import main
+        import tw2.core as twc
+        settings = {'sqlalchemy.url': 'sqlite://',
+                    'authentication.key': 'secret',
+                    'authentication.debug': True,
+                    'mako.directories': 'pyramid_cms:templates',
+                   }
+        app = main({}, **settings)
+        app = twc.middleware.TwMiddleware(app)
+        from webtest import TestApp
+        self.testapp = TestApp(app)
+        from sqlalchemy import create_engine
+        engine = create_engine('sqlite://')
+        DBSession.configure(bind=engine)
+        Base.metadata.create_all(engine)
+        with transaction.manager:
+            self.user1 = User(email='user1@lereskp.fr', password='pass1')
+            self.role = Role(name='admin')
+            page = Page(name='root', url='/', content='Root page content')
+            DBSession.add(self.user1)
+            DBSession.add(self.role)
+            DBSession.add(page)
+
+    def tearDown(self):
+        del self.testapp
+        DBSession.remove()
+
+    def test_view(self):
+        response = self.testapp.get(self.viewer_view, status=200)
+        self.assertTrue('Root page content' in response.body)
+
+    def test_edit(self):
+        response = self.testapp.get(self.viewer_edit, status=302)
+        self.assertTrue(('Location', 'http://localhost/login?next=http%3A%2F%2Flocalhost%2Fedit') in response._headerlist)
+
+        response = self.testapp.post(self.viewer_login, params={'email': 'user1@lereskp.fr', 'password': 'pass1'})
+        response = self.testapp.get(self.viewer_edit, status=302)
+        self.assertTrue(('Location', 'http://localhost/forbidden') in response._headerlist)
+        DBSession.add(self.user1)
+        DBSession.add(self.role)
+        self.user1.roles = [self.role]
+        response = self.testapp.get(self.viewer_edit, status=200)
+        self.assertTrue('<form enctype="multipart/form-data" method="post">' in response.body)
+

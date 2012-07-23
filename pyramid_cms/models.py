@@ -4,6 +4,7 @@ from sqlalchemy import (
     Text,
     String,
     ForeignKey,
+    Table,
     )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -22,6 +23,60 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 # We need this for tws
 Base.query = DBSession.query_property()
+
+
+user_role = Table('user_role', 
+                  Base.metadata,
+                  Column('iduser', Integer, ForeignKey('user.iduser')),
+                  Column('idrole', Integer, ForeignKey('role.idrole')),
+            )
+
+user_group = Table('user_group', 
+                  Base.metadata,
+                  Column('iduser', Integer, ForeignKey('user.iduser')),
+                  Column('idgroup', Integer, ForeignKey('groups.idgroup')),
+            )
+
+class Group(Base):
+    __tablename__ = 'groups'
+
+    idgroup = Column(
+                Integer, 
+                nullable=False, 
+                autoincrement=True, 
+                primary_key=True)
+    name = Column(String(255), nullable=False)
+
+class Role(Base):
+    __tablename__ = 'role'
+
+    idrole = Column(
+                Integer, 
+                nullable=False, 
+                autoincrement=True, 
+                primary_key=True)
+    name = Column(String(255), nullable=False)
+
+class User(Base):
+    __tablename__ = 'user'
+
+    iduser = Column(
+                Integer, 
+                nullable=False, 
+                autoincrement=True, 
+                primary_key=True)
+    email = Column(String(255), nullable=False)
+    password = Column(String(255), nullable=False)
+
+    roles = relationship(
+                'Role',
+                secondary=user_role,
+                backref='users')
+    groups = relationship(
+                'Group',
+                secondary=user_group,
+                backref='users')
+
 
 class Page(Base):
     __tablename__ = 'page'

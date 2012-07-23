@@ -12,4 +12,5 @@ def includeme(config):
             renderer='index.mak',
             custom_predicates=(route.exist_page,),
             factory=route.factory,
+            permission='view',
             )
